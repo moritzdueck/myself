@@ -1,284 +1,392 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Summer & Moritz — Marseille</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summer & Moritz — Marseille</title>
 
-  <style>
-    :root {
-      --bg: #0f0f10;
-      --fg: #eaeaea;
-      --muted: #a0a0a0;
-      --line: #262626;
-      --max: 900px;
-    }
+    <style>
+        :root {
+            --bg: #0f0f10;
+            --fg: #eaeaea;
+            --muted: #a0a0a0;
+            --line: #262626;
+            --max: 900px;
+        }
 
-    * {
-      box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family:
-        ui-monospace,
-        SFMono-Regular,
-        Menlo,
-        Monaco,
-        Consolas,
-        "Liberation Mono",
-        "Courier New",
-        monospace;
-      line-height: 1.6;
-    }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--fg);
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Monaco,
+                Consolas,
+                "Liberation Mono",
+                "Courier New",
+                monospace;
+            line-height: 1.6;
+        }
 
-    main {
-      max-width: var(--max);
-      margin: 48px auto;
-      padding: 0 24px;
-    }
+        main {
+            max-width: var(--max);
+            margin: 48px auto;
+            padding: 0 24px;
+        }
 
-    section {
-      padding: 24px 0;
-      border-top: 1px solid var(--line);
-    }
+        section {
+            padding: 24px 0;
+            border-top: 1px solid var(--line);
+        }
 
-    section:first-of-type {
-      border-top: none;
-    }
+        section:first-of-type {
+            border-top: none;
+        }
 
-    h1 {
-      font-size: 32px;
-      line-height: 1.2;
-      margin: 0 0 12px 0;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
+        h1 {
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
 
-    h2 {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 0 0 16px 0;
-    }
+        h2 {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 0 0 16px 0;
+        }
 
-    p {
-      margin: 0 0 16px 0;
-    }
+        p {
+            margin: 0 0 16px 0;
+        }
 
-    p:last-child {
-      margin-bottom: 0;
-    }
+        p:last-child {
+            margin-bottom: 0;
+        }
 
-    .lede {
-      font-size: 18px;
-    }
+        .lede {
+            font-size: 18px;
+        }
 
-    .meta {
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-top: 8px;
-    }
+        .meta {
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 32px;
-    }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 32px;
+        }
 
-    @media (min-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
+        @media (min-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-    ul {
-      padding-left: 18px;
-      margin: 0;
-    }
+        ul {
+            padding-left: 18px;
+            margin: 0;
+        }
 
-    li {
-      margin: 8px 0;
-    }
+        li {
+            margin: 8px 0;
+        }
 
-    .note {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 16px;
-    }
+        .note {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 16px;
+        }
 
-    .tags {
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+        /* ---------- Tags ---------- */
 
-    .tags span::before {
-      content: "#";
-      opacity: 0.5;
-      margin-right: 2px;
-    }
-  </style>
+        .tags {
+            font-size: 13px;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .tags span::before {
+            content: "#";
+            opacity: 0.5;
+            margin-right: 2px;
+        }
+
+        /* ---------- Galleries ---------- */
+
+        .gallery {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .gallery img {
+            height: 320px;
+            width: auto;
+            border: 1px solid var(--line);
+            scroll-snap-align: start;
+            object-fit: cover;
+            background: #000;
+        }
+
+        .gallery.portrait img {
+            height: 360px;
+            aspect-ratio: 4 / 5;
+        }
+
+        .gallery::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .gallery::-webkit-scrollbar-thumb {
+            background: var(--line);
+        }
+
+        .day-overview {
+            margin: 24px 0 0 0;
+        }
+
+        .day-overview img {
+            width: 100%;
+            max-width: 420px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid var(--line);
+        }
+    </style>
 </head>
 
 <body>
-  <main>
+    <main>
 
-    <section>
-      <h1>Summer / Moritz</h1>
-      <p class="lede">
-        Hi! We’re Summer and Moritz, a couple looking for another couple / person
-        to live with for at least 1 year in or around Marseille starting March 1, 2026.
-      </p>
-      <div class="meta">
-        <span>Marseille (or nearby)</span>
-        <span>Start: March 1, 2026</span>
-        <span>Duration: 1+ year</span>
-        <span>Seeking: 1–2 people</span>
-      </div>
-    </section>
-
-    <section>
-      <p>
-        Moritz (27) is from Germany and has been living and working in Zurich,
-        Switzerland for the last few years as a Software Engineer and UX Designer
-        in a small company. Summer (32) is a trauma-focused psychotherapist who
-        has been living in Brooklyn, New York.
-      </p>
-
-      <p>
-        We met in New York in 2023. Since we both work remotely, we’ve been able
-        to date long distance for the last 2.5 years, going back and forth
-        between Europe and New York and visiting each other for months at a time.
-        Now, we’re ready to finally live together in one place and prioritise
-        community, friendships, and a more grounded life.
-      </p>
-
-      <p>
-        As part of our next step, we’re searching for one or two people who want
-        to create and share a home together — with friendship, shared meals,
-        and creativity at the centre.
-      </p>
-    </section>
-
-    <section>
-      <h2>The space</h2>
-      <p>
-        We’re looking for a house or apartment with at least 3 bedrooms:
-        one for us, one for you, and one guest room. Our maximum budget is
-        2000 € / month for our share of the rent.
-      </p>
-
-      <p>
-        We’ll both be working primarily from home. Summer needs a completely
-        private space for therapy sessions (which could be a desk in our bedroom
-        if needed). Moritz is open to a shared or co-working style setup.
-        Ideally, everyone can work from home without getting in each other’s way.
-      </p>
-    </section>
-
-    <section>
-      <h2>Living together</h2>
-      <p>
-        Outside of work, we’d love to share meals a few nights a week and
-        intentionally spend time together at least once a week — cooking,
-        creating, listening to music, dancing, going out, watching a film,
-        playing a game, or doing mindfulness or meditation together.
-      </p>
-
-      <p>
-        We’re especially interested in some form of creative partnership:
-        collaborating on shared projects or simply working alongside each
-        other for inspiration.
-      </p>
-
-      <p>
-        At the same time, we’re both introverts and value alone time — both
-        individually and as a couple — and we’re also interested in building
-        community outside of the home.
-      </p>
-    </section>
-
-    <section>
-      <div class="grid">
-        <div>
-          <h2>Moritz</h2>
-          <p>
-            Moritz is a softie who loves moving slowly, processing thoughts and
-            feelings, and exploring the deeper meaning of experiences. He’s
-            connection-driven, harmony-oriented, and visually minded — often
-            sketching diagrams or designs to think through complex ideas.
-          </p>
-
-          <div class="tags">
-            <span>nonviolent communication</span>
-            <span>cooking</span>
-            <span>meditation</span>
-            <span>running</span>
-            <span>yoga</span>
-            <span>design</span>
-            <span>house techno</span>
-          </div>
+        <!-- TOP GALLERY -->
+        <div class="gallery">
+            <img src="together1.webp" alt="">
+            <img src="together2.webp" alt="">
+            <img src="together3.webp" alt="">
         </div>
 
-        <div>
-          <h2>Summer</h2>
-          <p>
-            Summer is passionate, caring, and deeply empathetic. She loves
-            magical realism and fantasy, is highly intentional about her time,
-            and brings a grounded awareness to her relationships. Therapy is
-            more than a job for her — it’s a calling.
-          </p>
+        <section>
+            <h1>Summer / Moritz</h1>
 
-          <div class="tags">
-            <span>reading</span>
-            <span>filter coffee</span>
-            <span>foreign films</span>
-            <span>mindfulness</span>
-            <span>podcasts</span>
-            <span>contemporary art</span>
-          </div>
+            <p class="lede">
+                Hi! We’re Summer and Moritz, a couple looking for another couple / person to live with for at least 1
+                year in or around Marseille starting March 1, 2026.
+            </p>
 
-          <p class="note">
-            Summer especially loves and works with EMDR, IFS, Coherence Therapy,
-            and the neuroscience of memory reconsolidation.
-          </p>
-        </div>
-      </div>
-    </section>
+            <div class="meta">
+                <span>Marseille (or nearby)</span>
+                <span>Start: March 1, 2026</span>
+                <span>Duration: 1+ year</span>
+                <span>Seeking: 1–2 people</span>
+            </div>
+        </section>
 
-    <section>
-      <h2>Next steps</h2>
-      <p>
-        If this resonates, please send us:
-      </p>
-      <ul>
-        <li>Your budget and housing preferences</li>
-        <li>Your vision for sharing a space together</li>
-        <li>A short description of you and what you love</li>
-      </ul>
+        <section>
+            <p>
+                Moritz (27) is from Germany and has been living and working in Zurich, Switzerland for the last few
+                years as a Software Engineer and UX Designer in a small company. Summer (32) is a trauma-focused
+                psychotherapist who has been living in Brooklyn, New York.
+            </p>
 
-      <p>
-        We’re excited to get to know you and will reach out to schedule a
-        video call as a first step.
-      </p>
+            <p>
+                We met in New York in 2023. Since we both work remotely, we’ve been lucky enough to be able to date long
+                distance for the last 2.5 years, going back and forth between Europe and New York and visit each other
+                for months at a time. Now, we are ready to finally be living together in one place and to get to
+                prioritise community, friendships, and a more grounded life.
+            </p>
 
-      <p class="note">
-        Note: We come with Haruki, Summer’s cat. He’s very lovable if you respect
-        his special needs — and a little neurotic.
-      </p>
-    </section>
+            <p>
+                As part of our next step, we’re searching for one or two people that want to create and share a home
+                together. We are looking for roommates with whom we can build a friendship and share good times, meals,
+                and creativity – but more below.
+            </p>
+        </section>
 
-  </main>
+        <section>
+            <h2>The space</h2>
+
+            <p>
+                We would like a house or apartment that is at least 3 bedrooms if not more – 1 for us, 1 for you, and 1
+                bedroom that is open for guests (your friends or ours) to come visit anytime. Our max budget is 2000 €
+                /month for rent for our share of the apartment.
+            </p>
+
+            <p>
+                We will both be primarily working from home so we would like a home with enough private work-at-home
+                space. Since Summer is a therapist, she needs a completely private room to take her sessions in (which
+                can be a desk in our bedroom if needed). Moritz is open to a more co-working space style setup, if you
+                happen to work from home, too.
+            </p>
+        </section>
+
+        <section>
+            <h2>Living together</h2>
+
+            <p>
+                Outside of working hours, we would love roommates who are interested in cooking or eating together a few
+                nights per week and at least one night per week doing some kind of a shared activity – doing something
+                creative together, listening to music, dancing, going out, watching a movie, playing a game, doing a
+                mindfulness activity / meditation together… no hard rules, but real interest and openness in building
+                community and friendship.
+            </p>
+
+            <p>
+                We would especially love some kind of a creative partnership where we can collaborate on shared projects
+                or at least work together in the same space sometimes for inspiration to reflect and bounce ideas off of
+                each other.
+            </p>
+
+            <p>
+                While we are looking to build a friendship with you, it’s also important to note that both of us
+                consider ourselves introverts.
+            </p>
+        </section>
+
+        <section>
+
+
+            <div>
+                <h2>Moritz</h2>
+
+                <div class="gallery portrait">
+                    <img src="moritz1.webp" alt="">
+                    <img src="moritz2.webp" alt="">
+                    <img src="moritz3.webp" alt="">
+                </div>
+
+                <p>
+                    A description of Moritz (by Summer): Moritz is a softie who loves moving slowly, time to process his
+                    thoughts and feelings and make sense of the deeper meaning of his experiences. Moritz is very
+                    connection-driven and harmony-oriented, but he is also still very much an introvert who recharges
+                    with time alone or around people he can move slowly and be soft around. Moritz has an excellent eye
+                    for details and design and thinks visually – if he’s working through a complex idea, you’ll find him
+                    jotting down notes, diagrams, and designs so he can visually process what he’s thinking through.
+                </p>
+
+                <div class="tags">
+                    <span>non-violent communication</span>
+                    <span>cooking</span>
+                    <span>meditation</span>
+                    <span>running</span>
+                    <span>yoga</span>
+                    <span>design</span>
+                    <span>house &amp; techno</span>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div>
+                <h2>Summer</h2>
+
+                <div class="gallery portrait">
+                    <img src="summer1.webp" alt="">
+                    <img src="summer2.webp" alt="">
+                    <img src="summer3.webp" alt="">
+                </div>
+
+                <p>
+                    A description of Summer (by Moritz): Summer is a passionate, caring, and very empathetic person. If
+                    not immersed in books on magical realism and fantasy, her mind is always on the search for new
+                    insights into human behaviour. She hates logistics and is impressively skilled at minimising the
+                    time she has to spend on activities she sees no value in. She’s diligent about work and workouts,
+                    and likes to balance it out through moving slow on weekends. She’s very aware of her own feelings
+                    and needs and good at setting boundaries, along with taking care of the strength and health of her
+                    relationships. She’s already lived many lives and with it comes a very open mind to different
+                    people, cultures, and relationships.
+                </p>
+
+                <div class="tags">
+                    <span>reading</span>
+                    <span>filter coffee</span>
+                    <span>house techno</span>
+                    <span>foreign films</span>
+                    <span>mindfulness</span>
+                    <span>podcasts</span>
+                    <span>contemporary art</span>
+                </div>
+            </div>
+
+
+        </section>
+
+        <section>
+            <h2>Our day overview</h2>
+
+            <figure class="day-overview">
+                <img src="day.png" alt="Weekday and weekend day overview">
+            </figure>
+        </section>
+
+        <section>
+            <h2>Next steps</h2>
+
+            <p>
+                Based on these descriptions, if you feel like we could be a good fit for you (and your partner) in terms
+                of friendship chemistry, please send back the following:
+            </p>
+
+            <ul>
+                <li>Your budget and any preferences regarding the house/apartment</li>
+                <li>Your ideal vision for how you would like to share the space with us</li>
+                <li>A short description of you and some of the things you love most</li>
+            </ul>
+
+            <p>
+                We are excited to get to know you and will reach out and schedule a video call as a first step in
+                exploring living together!
+            </p>
+
+            <p class="note">
+                Note: The two of us also come with, Haruki, Summer’s cat. Haruki is ultimately very lovable if you
+                respect his special needs, but he is a little neurotic.
+            </p>
+        </section>
+
+
+        <section>
+            <h2>Contact</h2>
+
+            <p>
+                You can reach us by email at
+                <a href="mailto:nicepeopleflat@gmail.com">nicepeopleflat@gmail.com</a>
+            </p>
+
+            <p>
+                or on Instagram:
+                <a href="https://www.instagram.com/nicepeopleflat/" target="_blank" rel="noopener">
+                    instagram.com/nicepeopleflat
+                </a>
+            </p>
+        </section>
+
+    </main>
 </body>
+
 </html>
