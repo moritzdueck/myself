@@ -2,10 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <link rel="icon" type="image/svg+xml" href="/nvc/vite.svg"/>
+    <!-- Root-absolute on purpose: Vite rewrites these to sit under `--base` when
+         the portfolio build runs, and an absolute path is the only kind that
+         survives being loaded from a nested entry page (/nvc/practice/stay/). -->
+    <link rel="icon" href="/nvc/favicon.ico" sizes="32x32"/>
+    <link rel="icon" href="/nvc/icon.svg" type="image/svg+xml"/>
+    <link rel="apple-touch-icon" href="/nvc/apple-touch-icon.png"/>
+    <link rel="manifest" href="/nvc/site.webmanifest"/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NVC light</title>
+    <!-- Paper at rest; the story rewrites it as the room's colour travels, so a
+         phone's own bars travel with it (see utils/themeColor.ts). -->
+    <meta name="theme-color" content="#ffffff"/>
+    <title>Nonviolent Communication</title>
 
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +23,8 @@
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 
-  <script type="module" crossorigin src="/nvc/assets/index-Nm0VIcZj.js"></script>
-  <link rel="stylesheet" crossorigin href="/nvc/assets/index-mjJ-F8Vf.css">
+  <script type="module" crossorigin src="/nvc/assets/index-Dfvbv3f8.js"></script>
+  <link rel="stylesheet" crossorigin href="/nvc/assets/index-BtWHBAwo.css">
 </head>
 <body>
 <div id="app"></div>
