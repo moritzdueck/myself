@@ -6,6 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Neighborhood traces</title>
 
+    <!--
+      HAND-EDITED BUILD OUTPUT. This folder is a built copy; the sources live in
+      the JoVI submission repo (github.com/journalovi/2024-Dueck-neighborhood-traces),
+      which is under review and has no notion of this deployment. Anything
+      rebuilt from there and copied over the top will drop the block below and
+      the back-link at the foot of <body> — re-apply both, or move them into the
+      source's index.html so the next build carries them.
+
+      Absolute URLs: a link scraper resolves nothing relative.
+    -->
+    <meta name="description"
+          content="Visualizations of how a convolutional network reshapes the neighborhood around a sample, layer by layer — a global view of the whole architecture and two local ones, over a set of QuickDraw sketches."/>
+
+    <meta property="og:type" content="article"/>
+    <meta property="og:url" content="https://www.moritzdueck.com/neighborhood-traces/"/>
+    <meta property="og:title" content="Neighborhood traces: when your neighborhood changes one layer at a time"/>
+    <meta property="og:description"
+          content="Visualizations of how a convolutional network reshapes the neighborhood around a sample, layer by layer — a global view of the whole architecture and two local ones, over a set of QuickDraw sketches."/>
+    <meta property="og:image" content="https://www.moritzdueck.com/neighborhood-traces/og-image.jpg"/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="630"/>
+    <meta property="og:image:alt"
+          content="A radial view of how one sketch's neighbors move between the input layer and the final one"/>
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="Neighborhood traces: when your neighborhood changes one layer at a time"/>
+    <meta name="twitter:description"
+          content="Visualizations of how a convolutional network reshapes the neighborhood around a sample, layer by layer, over a set of QuickDraw sketches."/>
+    <meta name="twitter:image" content="https://www.moritzdueck.com/neighborhood-traces/og-image.jpg"/>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -15,6 +45,22 @@
 </head>
 <body>
 <div id="app"></div>
+
+<!-- The way back. Someone arriving from the paper, a search result or a shared
+     link otherwise has nowhere to go from here and nothing saying whose this
+     is. Fixed in the top-right, which the article and the explorer both leave
+     empty; the app owns #app, so this sits outside it rather than fighting the
+     bundle for a place in the layout. See the note in <head> about rebuilds. -->
+<a href="https://www.moritzdueck.com/" rel="author" style="
+     position:fixed; top:14px; right:18px; z-index:9999;
+     font-family:Inter,system-ui,sans-serif; font-size:13px; line-height:1;
+     padding:7px 11px; border-radius:999px;
+     color:#3d4a57; text-decoration:none;
+     background:rgba(255,255,255,.82); backdrop-filter:blur(6px);
+     border:1px solid rgba(0,0,0,.08);"
+   onmouseover="this.style.background='#fff';this.style.color='#111'"
+   onmouseout="this.style.background='rgba(255,255,255,.82)';this.style.color='#3d4a57'"
+>Moritz Dück ↗</a>
 
 </body>
 </html>
