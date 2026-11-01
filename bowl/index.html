@@ -421,7 +421,7 @@ const FIT = {
 };
 // Layers in the order a bowl is built, bottom up. Each groups one or more data slots.
 const LAYERS = [
-  { id: "base", label: "Base", slots: ["grain", "green"], hint: "Goes in first: a grain or potato, greens, or both. One grain at a time." },
+  { id: "base", label: "Base", slots: ["grain", "green"], hint: "Goes in first: a grain or potato, greens, or a mix of them." },
   { id: "protein", label: "Protein", slots: ["protein"], hint: "Sits on the base. One is typical, mix if you like." },
   { id: "veg", label: "Veggies", slots: ["veg"], hint: "Arranged around the protein. Two or three is typical." },
   { id: "crunch", label: "Crunch", slots: ["topping"], hint: "Scattered on top: seeds, nuts, cheese." },
@@ -489,7 +489,6 @@ const fibreLow = sum => sum.fibre < fibreMin(sum.kcal) * (1 - ON_GOAL);
 const mealSize = () => +$("kcal").value;
 
 function add(i) {
-  if (INGS[i].slot === "grain") for (const j of [...bowl.keys()]) if (INGS[j].slot === "grain") bowl.delete(j);
   const used = new Set([...bowl.values()].map(b => b.series));
   let series = 0;
   while (used.has(series)) series++;
@@ -610,7 +609,8 @@ const IDEAS = {
   tagFibre: 0.0004,  // and "+ fibre" once it covers about a sixth of the missing fibre
 };
 
-// Grains are left out once the bowl has one, since a bowl takes one grain (picking another swaps it).
+// Ideas leave grains out once the bowl has one: a second starch (half rice, half quinoa) is a choice
+// to make in the base's list, not a likely idea.
 const openSlots = slots => [...bowl.keys()].some(i => INGS[i].slot === "grain") ? slots.filter(sl => sl !== "grain") : slots;
 
 // One candidate per food not in the bowl yet: its preparation listed first (the usual one).
@@ -1115,10 +1115,14 @@ function onClicks(root, actions) {
 }
 onClicks($("figure"), [["[data-layer]", el => openView(+el.dataset.layer)]]);
 onClicks($("layers"), [["[data-layer]", el => openView(+el.dataset.layer)]]);
-onClicks($("side"), [
-  ["#done", closeView],
+onClicks($("ideas"), [
   ["[data-layer]", el => openView(+el.dataset.layer)],
   ["[data-add]", el => { addSuggested(+el.dataset.add); $("ideas").querySelector(".item")?.focus(); }],
+  ["[data-recipe]", el => useRecipe(+el.dataset.recipe)],
+]);
+// The sheet has its own handlers: in the narrow layout it isn't inside the side panel (see placeForLayout).
+onClicks($("sheet"), [
+  ["#done", closeView],
   ["[data-recipe]", el => useRecipe(+el.dataset.recipe)],
   ["[data-filter]", showCategory],
   ["[data-swap]", swapPreparation],
@@ -1141,8 +1145,8 @@ $("gear").addEventListener("click", () => {
   measureBar();
 });
 
-$("side").addEventListener("keydown", e => {
-  if (e.key === "Escape" && view !== null) { closeView(); return; }
+$("sheet").addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeView(); return; }
   // Category tabs: left and right move between them, and open the one reached.
   const catTab = e.target.closest("[data-filter]");
   if (!catTab) return;
@@ -1170,12 +1174,19 @@ screenTabs.forEach(t => t.addEventListener("click", () => {
 screens.addEventListener("scrollend", () => { if (narrow.matches) selectTab(Math.round(screens.scrollLeft / screens.clientWidth)); });
 new IntersectionObserver(([entry]) => $("bar").classList.toggle("quiet", entry.isIntersecting && !narrow.matches),
   { rootMargin: "-80px 0px -40% 0px" }).observe($("check"));
-function placeSources() {
-  if (narrow.matches) $("check").append($("sources"));
-  else $("tip").before($("sources"));
+// In the narrow layout a layer's list also leaves the scrolling screens for the page itself: Safari
+// draws a fixed element inside a scroll container on that container's layer, under the tabs and footer.
+function placeForLayout() {
+  if (narrow.matches) {
+    $("check").append($("sources"));
+    document.body.append($("sheet"));
+  } else {
+    $("tip").before($("sources"));
+    $("side").append($("sheet"));
+  }
 }
-narrow.addEventListener("change", () => { placeSources(); render(); });
-placeSources();
+narrow.addEventListener("change", () => { placeForLayout(); render(); });
+placeForLayout();
 
 // Hovering or focusing an ingredient anywhere picks it out in the bars and the table.
 function highlight(id) {
