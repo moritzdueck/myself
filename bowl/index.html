@@ -1140,9 +1140,18 @@ $("clear").addEventListener("click", () => { bowl.clear(); view = null; render()
 $("kcal").addEventListener("input", () => { fitOn = true; render(); });
 // Adjusting is a mode: the steppers show only in it, and leaving it fits the amounts again.
 $("edit").addEventListener("click", () => { fitOn = !fitOn; render(); $("edit").focus(); });
-$("gear").addEventListener("click", () => {
-  $("gear").setAttribute("aria-expanded", $("bar").classList.toggle("open"));
+// The narrow layout's footer settings (meal size and goal) open by themselves on Check, where
+// they're what you'd change, and stay closed on Bowl and Shop. Each screen remembers how the
+// settings button last left them there.
+let screen = 0;
+const settingsOpen = [false, true, false];  // Bowl, Check, Shop
+function showSettings(open) {
+  $("gear").setAttribute("aria-expanded", $("bar").classList.toggle("open", open));
   measureBar();
+}
+$("gear").addEventListener("click", () => {
+  settingsOpen[screen] = !settingsOpen[screen];
+  showSettings(settingsOpen[screen]);
 });
 
 $("sheet").addEventListener("keydown", e => {
@@ -1165,13 +1174,35 @@ const narrow = matchMedia("(max-width: 1000px)");  // the same width as the narr
 const calm = matchMedia("(prefers-reduced-motion: reduce)");
 const screens = $("screens");
 const screenTabs = [...document.querySelectorAll("#tabs [data-screen]")];
-const selectTab = n => screenTabs.forEach((t, k) => t.setAttribute("aria-selected", k === n));
+// The tab marks the screen that's mostly showing, live while swiping; the footer settings follow
+// once the swipe has settled. Settled means scrollend where there is one, and otherwise (Safari) no
+// scrolling for a moment.
+const shownScreen = () => Math.round(screens.scrollLeft / screens.clientWidth);
+const markTab = n => screenTabs.forEach((t, k) => t.setAttribute("aria-selected", k === n));
+function selectTab(n) {
+  markTab(n);
+  if (n === screen) return;
+  screen = n;
+  showSettings(settingsOpen[n]);
+}
+let jumpingTo = null, settleTimer;  // a tapped tab's screen, while the pager scrolls there
 screenTabs.forEach(t => t.addEventListener("click", () => {
-  selectTab(+t.dataset.screen);
-  screens.scrollTo({ left: +t.dataset.screen * screens.clientWidth, behavior: calm.matches ? "instant" : "smooth" });
+  jumpingTo = +t.dataset.screen;
+  selectTab(jumpingTo);
+  screens.scrollTo({ left: jumpingTo * screens.clientWidth, behavior: calm.matches ? "instant" : "smooth" });
 }));
-// After a swipe, the tab follows once the screen has settled.
-screens.addEventListener("scrollend", () => { if (narrow.matches) selectTab(Math.round(screens.scrollLeft / screens.clientWidth)); });
+function settle() {
+  clearTimeout(settleTimer);
+  jumpingTo = null;
+  if (narrow.matches) selectTab(shownScreen());
+}
+screens.addEventListener("scroll", () => {
+  if (!narrow.matches) return;
+  if (jumpingTo === null) markTab(shownScreen());  // a tap's scroll passes screens it isn't going to
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(settle, 150);
+});
+screens.addEventListener("scrollend", settle);
 new IntersectionObserver(([entry]) => $("bar").classList.toggle("quiet", entry.isIntersecting && !narrow.matches),
   { rootMargin: "-80px 0px -40% 0px" }).observe($("check"));
 // In the narrow layout a layer's list also leaves the scrolling screens for the page itself: Safari
@@ -1185,7 +1216,12 @@ function placeForLayout() {
     $("side").append($("sheet"));
   }
 }
-narrow.addEventListener("change", () => { placeForLayout(); render(); });
+narrow.addEventListener("change", () => {
+  placeForLayout();
+  render();
+  // Entering the narrow layout: the tab and the footer settings follow the screen that's showing.
+  if (narrow.matches) { screen = -1; selectTab(shownScreen()); }
+});
 placeForLayout();
 
 // Hovering or focusing an ingredient anywhere picks it out in the bars and the table.
