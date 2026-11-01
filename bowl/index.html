@@ -345,7 +345,7 @@ tr.hit td { background: var(--bg); }
 <main class="screens" id="screens">
   <section class="build" aria-label="Your bowl">
     <div class="scene">
-      <div class="panel-head scene-head"><h2>Your bowl</h2><span class="note meta"><span id="bowl-caption"></span><button class="link" id="to-recipes">Start from a recipe</button><button class="link" id="clear">Clear</button></span></div>
+      <div class="panel-head scene-head"><h2>Your bowl</h2><span class="note meta"><span id="bowl-caption"></span><button class="link" id="to-recipes">Start from a recipe</button><button class="link" id="share">Share</button><button class="link" id="clear">Clear</button></span></div>
       <div class="bowl-fig">
         <div id="figure" role="img" aria-label="Your bowl as stacked stones"></div>
         <div class="layers" id="layers"></div>
@@ -1031,6 +1031,52 @@ function render() {
   renderCheck(sum);
   renderShop(sum);
   renderBar(sum);
+  writeAddress();
+}
+
+/* ---- The bowl in the address ---- */
+
+// The address after # holds the bowl, so a bookmark or a shared link opens it again:
+//   #foods=C352032.T420100.G572100&kcal=750&goal=protein&meals=2
+// Foods by BLS code (unique per ingredient and stable across rebuilds, unlike list positions), in
+// the order they were added. Hand-set amounts ride along as code:grams; fitted ones follow from the
+// foods and settings. Meal size, goal and meals only when they differ from the start. It never
+// leaves the browser, and replacing it doesn't add a back-button step per change.
+const BY_CODE = new Map(INGS.map((ing, i) => [ing.code, i]));
+const KCAL = { min: +$("kcal").min, max: +$("kcal").max, step: +$("kcal").step, start: +$("kcal").defaultValue };
+
+function writeAddress() {
+  const params = new URLSearchParams();
+  params.set("foods", ordered().map(([i, b]) => fitOn ? INGS[i].code : `${INGS[i].code}:${b.g}`).join("."));
+  if (mealSize() !== KCAL.start) params.set("kcal", mealSize());
+  if (goal !== GOALS[0]) params.set("goal", goal.id);
+  if (meals > 1) params.set("meals", meals);
+  // URLSearchParams escapes ":" as %3A; the address reads better with it as it is.
+  history.replaceState(null, "", "#" + params.toString().replaceAll("%3A", ":"));
+}
+
+// Opens the bowl in the address, if there is one; foods it doesn't know are skipped. Returns
+// whether it found a bowl (an empty one counts: "#foods=" is a cleared bowl).
+function readAddress() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  if (!params.has("foods")) return false;
+  const kcal = Math.round(+params.get("kcal") / KCAL.step) * KCAL.step;
+  $("kcal").value = kcal >= KCAL.min && kcal <= KCAL.max ? kcal : KCAL.start;
+  goal = GOALS.find(g => g.id === params.get("goal")) ?? GOALS[0];
+  meals = Math.min(MAX_MEALS, Math.max(1, Math.round(+params.get("meals")) || 1));
+  bowl.clear();
+  fitOn = true;
+  for (const item of params.get("foods").split(".")) {
+    const [code, grams] = item.split(":");
+    const i = BY_CODE.get(code);
+    if (i === undefined) continue;
+    add(i);
+    if (grams && +grams > 0) {
+      bowl.get(i).g = Math.round(+grams);
+      fitOn = false;  // a hand-set amount means the amounts were adjusted by hand
+    }
+  }
+  return true;
 }
 
 /* ---- Actions ---- */
@@ -1136,6 +1182,16 @@ onClicks($("table"), [
 onClicks($("goals"), [["[data-goal]", setGoal]]);
 onClicks(document.querySelector(".meals"), [["[data-meals]", stepMeals]]);
 $("to-recipes").addEventListener("click", () => openView("recipes"));
+// Share: the system share sheet where there is one (phones), else the address to the clipboard.
+$("share").addEventListener("click", async () => {
+  const say = text => { $("share").textContent = text; setTimeout(() => { $("share").textContent = "Share"; }, 2500); };
+  try {
+    if (navigator.share) await navigator.share({ title: document.title, url: location.href });
+    else { await navigator.clipboard.writeText(location.href); say("Link copied"); }
+  } catch (err) {
+    if (err.name !== "AbortError") say("Copy the address to share");  // no clipboard access here
+  }
+});
 $("clear").addEventListener("click", () => { bowl.clear(); view = null; render(); });
 $("kcal").addEventListener("input", () => { fitOn = true; render(); });
 // Adjusting is a mode: the steppers show only in it, and leaving it fits the amounts again.
@@ -1258,6 +1314,8 @@ document.addEventListener("focusout", () => { tip.style.display = "none"; highli
 addEventListener("resize", () => { renderCheck(totals()); placeFloor(); placeLeaders(); measureBar(); });
 document.fonts?.ready.then(() => { placeFloor(); placeLeaders(); });  // web fonts can move the drawing and labels a little
 
-loadRecipe(START);
+if (!readAddress()) loadRecipe(START);
 render();
+// A link pasted into the same tab, or the address edited by hand.
+addEventListener("hashchange", () => { if (readAddress()) { view = null; render(); } });
 </script>
