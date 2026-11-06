@@ -137,13 +137,7 @@ html { min-height: 100%; background: linear-gradient(to bottom, var(--bg) var(--
 /* The bowl's soft shadow reaches past the drawing's edges and fades out on the counter. */
 #figure svg { display: block; width: 100%; height: auto; overflow: visible; }
 .layer { cursor: pointer; }
-.layer .stones { transform-box: fill-box; transform-origin: center; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
-.layer:hover .stones { transform: scale(1.02); }
-.layer.on .stones { transform: scale(1.06); }
-@media (prefers-reduced-motion: reduce) { .layer .stones { transition: none; } }
-.leader { fill: none; stroke: var(--line); stroke-width: 1.2; stroke-dasharray: 2 4; }
-/* Labels list every food and take the height they need, spread down the drawing; the leaders
-   are aimed at where they end up (placeLeaders). */
+/* Labels list every food and take the height they need, spread down the drawing. */
 .layers { display: grid; align-content: space-around; }
 .layer-pt { display: grid; grid-template-columns: minmax(0, 1fr) 14px; align-items: center; gap: var(--space-2); min-height: 48px; text-align: left; background: none; border: 0; border-top: 1px solid var(--hair); padding: 6px 6px 6px 10px; cursor: pointer; min-width: 0; }
 .layer-pt:first-child { border-top: 0; }
@@ -860,7 +854,7 @@ function layerList(L) {
 // and neighbours overlap a fifth of the smaller radius on purpose so the stack reads dense.
 // The base row sinks into the bowl, behind the near rim. Coordinates are the design's (bowl at x 367,
 // rim at y 730, counter from y 799, drawing down to y 900, right edge at x 634).
-const CX = 367, RIM_Y = 730, FLOOR_Y = 799, BOTTOM_Y = 900, RIGHT_X = 634;
+const CX = 367, RIM_Y = 730, FLOOR_Y = 799, BOTTOM_Y = 900;
 const STONE = { k: 7.2, min: 14, max: 135, empty: 22, overlap: .2, sink: 40 };
 const radius = g => Math.min(STONE.max, Math.max(STONE.min, STONE.k * Math.sqrt(g)));
 
@@ -893,18 +887,15 @@ const stoneDefs = rows => rows.flatMap(row => row.items.filter(it => !it.empty).
     <stop offset="1" stop-color="${mix(it.color, "#3a2418", .05)}"/></radialGradient>`)).join("");
 
 function stoneRow(row) {
-  const { L, k, filled, items, y } = row;
+  const { L, k, filled, items } = row;
   const asEaten = it => `${fmt(it.g, 0)} g${INGS[it.i].cooked ? ` ${T.cooked}` : ""}`;
   const stones = items.map((it, n) => it.empty
     ? `<circle class="empty" cx="${it.x}" cy="${it.y}" r="${it.r}" fill="var(--surface)" fill-opacity=".5" stroke="var(--line)" stroke-width="2.5" stroke-dasharray="5 5"/>`
     : `<circle cx="${it.x}" cy="${it.y}" r="${it.r}" fill="url(#st-${k}-${n})"${isLight(it.color) ? ` stroke="var(--line)" stroke-width="1.2"` : ""}>
         <title>${esc(labelOf(it.i))}, ${asEaten(it)}</title></circle>`).join("");
   const said = filled.length ? items.map(it => `${labelOf(it.i)} ${asEaten(it)}`).join(", ") : T.nothingYet;
-  // A dotted leader from the row's right edge to its label; placeLeaders aims its end.
-  const right = Math.max(...items.map(it => it.x + it.r)) + 8;
-  const leader = `<polyline class="leader" data-layer-label="${k}" data-x="${right}" data-y="${y}"/>`;
   // The stones are a picture and a shortcut by pointer; the labels are the keyboard and screen-reader way in.
-  return `<g class="layer${k === view ? " on" : ""}" data-layer="${k}"><title>${esc(`${tr(L)}: ${said}`)}</title>${leader}<g class="stones">${stones}</g></g>`;
+  return `<g class="layer" data-layer="${k}"><title>${esc(`${tr(L)}: ${said}`)}</title>${stones}</g>`;
 }
 
 // The matte stoneware bowl and its soft contact shadow (from the design). The near wall is drawn
@@ -945,23 +936,10 @@ function renderBowl(sum) {
     <path d="M147,730 A220,28 0 0 0 587,730" fill="none" stroke="#f1efeb" stroke-width="2"/>
   </svg>`;
   placeFloor(top);
-  $("layers").innerHTML = [...LAYERS.keys()].reverse().map(layerLabel).join("");
-  placeLeaders();
+  // Labels read in the order a bowl is built, Base first, though the stones stack bottom up.
+  $("layers").innerHTML = [...LAYERS.keys()].map(layerLabel).join("");
   $("bowl-caption").textContent = bowl.size ? `${fmt(sum.kcal, 0)} kcal` : T.empty;
   $("clear").hidden = !bowl.size;
-}
-
-// Each leader runs from its stones to the middle of its label, measured: labels grow with their
-// foods, so where they sit isn't known until they're laid out. In the drawing's coordinates.
-function placeLeaders() {
-  const svg = $("figure").querySelector("svg");
-  const box = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
-  svg.querySelectorAll(".leader").forEach(line => {
-    const label = $("layers").querySelector(`[data-layer="${line.dataset.layerLabel}"]`).getBoundingClientRect();
-    const to = vb.y + (label.top + label.height / 2 - box.top) / box.height * vb.height;
-    const { x, y } = line.dataset;
-    line.setAttribute("points", `${x},${y} ${+x + 12},${y} ${RIGHT_X - 2},${to}`);
-  });
 }
 
 // A layer's label beside the drawing: its name and all its foods; it opens the layer's list.
@@ -1473,8 +1451,8 @@ document.addEventListener("focusin", e => {
 });
 document.addEventListener("focusout", () => { tip.style.display = "none"; highlight(null); });
 
-addEventListener("resize", () => { renderCheck(totals()); placeFloor(); placeLeaders(); measureBar(); });
-document.fonts?.ready.then(() => { placeFloor(); placeLeaders(); });  // web fonts can move the drawing and labels a little
+addEventListener("resize", () => { renderCheck(totals()); placeFloor(); measureBar(); });
+document.fonts?.ready.then(() => placeFloor());  // web fonts can move the drawing a little
 
 applyStatic();
 readAddress();  // the bowl in the address, if there is one; otherwise it starts empty
