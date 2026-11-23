@@ -6,8 +6,10 @@
   BUILD OUTPUT if you're reading this as bowl/index.html in the portfolio. It is built from the
   caloreyes repo (explore/bowl/template.html, by explore/build_bowl.py) and copied to
   https://www.moritzdueck.com/bowl/ (moritzdueck/myself, GitHub Pages) next to og-image.jpg, a
-  1200 x 630 screenshot of the page. Edit the template there, not this copy. Absolute URLs below:
-  a link scraper resolves nothing relative.
+  1200 x 630 screenshot of the page, and the files that make it an app you can install:
+  manifest.webmanifest, sw.js and the icons (explore/build_bowl_icons.py). Edit the template there,
+  not this copy. Absolute URLs in the og: and twitter: tags: a link scraper resolves nothing
+  relative. The app's files are relative, so the page also installs from a local server.
 -->
 <meta name="description" content="Build a bowl layer by layer, check it against your goal, and get ideas from 77,000 recipes. Nutrition from the German food database BLS.">
 <meta property="og:type" content="website">
@@ -23,6 +25,9 @@
 <meta name="twitter:description" content="Build a bowl layer by layer, check it against your goal, and get ideas from 77,000 recipes. Nutrition from the German food database BLS.">
 <meta name="twitter:image" content="https://www.moritzdueck.com/bowl/og-image.jpg">
 <meta name="theme-color" content="#f4f3f0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Bowl">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2213%22%20r%3D%226%22%20fill%3D%22%23f08a6c%22/%3E%3Ccircle%20cx%3D%2220%22%20cy%3D%2212%22%20r%3D%225%22%20fill%3D%22%239cc46e%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%226%22%20r%3D%223.5%22%20fill%3D%22%23f4d35e%22/%3E%3Cpath%20d%3D%22M3%2017h26c0%206.6-5.8%2011-13%2011S3%2023.6%203%2017z%22%20fill%3D%22%23cdc8c0%22/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&family=Albert+Sans:wght@400..700&display=swap">
@@ -1559,7 +1564,24 @@ function writeAddress() {
   if (goal !== GOALS[0]) params.set("goal", goal.id);
   if (serves > 1) params.set("serves", serves);
   // URLSearchParams escapes ":" as %3A; the address reads better with it as it is.
-  history.replaceState(null, "", "#" + params.toString().replaceAll("%3A", ":"));
+  const hash = "#" + params.toString().replaceAll("%3A", ":");
+  history.replaceState(null, "", hash);
+  if (rememberBowl) try { localStorage.setItem("bowl-last", hash); } catch {}
+}
+// Off while a page opened without a bowl draws its empty one, so that doesn't replace the last bowl.
+let rememberBowl = true;
+
+// An app on the home screen always opens at its start address, without the bowl after #, so it
+// would open empty each time. There it puts back the last bowl on this device instead (on Android
+// including one built in Chrome before installing; on iOS the app keeps its own storage). In a
+// browser tab the bare address still opens an empty bowl. Returns whether it put one back.
+function restoreLastBowl() {
+  const app = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  let last = null;
+  try { last = localStorage.getItem("bowl-last"); } catch {}
+  if (!app || !last?.startsWith("#foods=")) return false;
+  history.replaceState(null, "", last);
+  return true;
 }
 
 // Opens the bowl in the address, if there is one; foods it doesn't know are skipped. Returns
@@ -1743,7 +1765,14 @@ onClicks($("langs"), [["[data-lang]", setLang]]);
 onClicks(document.querySelector(".serves"), [["[data-serves]", stepServes]]);
 // Search: typing opens the matches; up and down move through them, Enter ticks one in or out (and,
 // putting one in, clears the field to type the next), Escape closes them and then clears the field.
-// Clicked matches stay open while ticking, to add a few foods in a row; all close once focus leaves.
+// Over the screens (phones), tapping a match in clears the field too. On wider screens clicked matches
+// stay open while ticking, to add a few foods in a row; all close once focus leaves.
+// Ticks a match in or out; a food put in clears the field for the next one, one taken out leaves the
+// matches as they were.
+function pickAndClear(i) {
+  pickFound(i);
+  if (bowl.has(i)) { $("q").value = ""; foundAt = 0; renderSearch(); }
+}
 $("q").addEventListener("input", () => { searching = true; foundAt = 0; renderSearch(); });
 $("q").addEventListener("focus", () => { searching = true; renderSearch(); });
 $("q").addEventListener("keydown", e => {
@@ -1756,10 +1785,7 @@ $("q").addEventListener("keydown", e => {
     $("found").querySelector(".active")?.scrollIntoView({ block: "nearest" });
   } else if (e.key === "Enter" && open && found.length) {
     e.preventDefault();
-    const i = found[foundAt];
-    pickFound(i);
-    // A food put in clears the field for the next one; one taken out leaves the matches as they were.
-    if (bowl.has(i)) { $("q").value = ""; foundAt = 0; renderSearch(); }
+    pickAndClear(found[foundAt]);
   } else if (e.key === "Escape") {
     e.preventDefault();
     if (searchFull) { closeSearchFull(); return; }
@@ -1769,7 +1795,7 @@ $("q").addEventListener("keydown", e => {
   }
 });
 $("found").addEventListener("mousedown", e => e.preventDefault());  // a click on a match keeps focus in the field
-onClicks($("found"), [["[data-i]", el => pickFound(+el.dataset.i)]]);
+onClicks($("found"), [["[data-i]", el => (searchFull ? pickAndClear : pickFound)(+el.dataset.i)]]);
 // Over the screens the matches stay until Done: hiding the keyboard (which blurs the field) leaves
 // more of them to scroll through.
 $("search-box").addEventListener("focusout", e => {
@@ -1913,8 +1939,12 @@ addEventListener("resize", () => { renderCheck(totals()); placeFloor(); measureB
 document.fonts?.ready.then(() => placeFloor());  // web fonts can move the drawing a little
 
 applyStatic();
-readAddress();  // the bowl in the address, if there is one; otherwise it starts empty
+// The bowl in the address, if there is one; otherwise it starts empty, except as an installed app.
+rememberBowl = readAddress() || (restoreLastBowl() && readAddress());
 render();
+rememberBowl = true;
 // A link pasted into the same tab, or the address edited by hand.
 addEventListener("hashchange", () => { if (readAddress()) { view = null; render(); } });
+// Lets the installed app open offline (sw.js); a page opened from a file has none.
+if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
